@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="nepe.jpg">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      background-color: #232323;
+      color: #fff;
+    }
+
+    h1 {
+      color: #ffab00;
+    }
+
+    label {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #aaa;
+    }
+
+    #saldoInput, #recargaInput, button {
+      margin: 10px;
+      padding: 8px;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .icons {
+      display: flex;
+      justify-content: center;
+      padding: 30px;
+    }
+
+    #local {
+      background-color: red;
+      border-radius: 14px;
+      height: 200px;
+      width: 200px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    #local:disabled {
+      background-color: #666;
+    }
+
+    #visitante {
+      background-color: blue;
+      border-radius: 14px;
+      height: 200px;
+      width: 200px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #fff;
+    }
+
+    #visitante:disabled {
+      background-color: #666;
+    }
+
+    button {
+      cursor: pointer;
+      background-color: #ffab00;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 32px;
+      transition: background-color 0.3s;
+      border: 1px solid #fff;
+    }
+
+    input[type="button"]{
+      margin-left: 10px;
+    }
+
+    button:hover {
+      background-color: #d79000;
+    }
+
+    button:disabled {
+      background-color: #666;
+      color: #aaa;
+      padding: 10px 32px;
+      cursor: not-allowed;
+    }
+
+    h2 {
+      margin-top: 20px;
+      color: #ffab00;
+    }
+
+    #saldoInput, #recargaInput {
+      text-align: center;
+    }
+
+    .btnZone {
+      background-color: #555;
+    }
+
+    .tittle {
+      background-color: #555;
+      padding: 8px;
+    }
+
+    #afirmativo, #negativo, #empate {
+      padding: 8px 20px;
+      cursor: pointer;
+      justify-content: center;
+      border-radius: 20px;
+      border: 1px solid #fff;
+    }
+    
+    #afirmativo:disabled, #negativo:disabled, #empate:disabled {
+      color: #fff;
+    }
+  </style>
+  <title>Recarga de Saldo</title>
+</head>
+<body>
+
+<div class="overlay"></div>
+<div class="background-layer"></div>
+
+
+<div class="tittle">
+  <h1>SIMULADOR DE APUESTAS DEPORTIVAS</h1>
+</div>
+
+<hr>
+
+<div class="icons">
+  <div class="red">
+    <input type="button" id="local" value="LOCAL" disabled onclick="seleccionarEquipo('LOCAL')">
+  </div>
+  <span style="width: 20px"></span>
+  <div class="blue">
+    <input type="button" id="visitante" value="VISITANTE" disabled onclick="seleccionarEquipo('VISITANTE')">
+  </div>
+</div>
+
+<hr>
+
+<label for="saldoInput">Saldo Disponible: </label>
+<input type="text" id="saldoInput" value="0.00" disabled><br>
+<input type="number" id="recargaInput" placeholder="Ingrese una cantidad">
+
+<button onclick="recargar()">Recargar</button>
+
+<input type="button" id="empate" value="EMPATE" disabled onclick="realizarAccion('EMPATE')">
+<input type="button" id="negativo" value="✔️" disabled onclick="realizarAccion('VISTO_BUENO')">
+<input type="button" id="afirmativo" value="❌" disabled onclick="realizarAccion('VISTO_MALO')">
+
+<div class="btnZone" style="margin-top: 10px;">
+  <button onclick="recargarMonto(2.5)" id="btn2.5" disabled>2.5</button>
+  <button onclick="recargarMonto(5)" id="btn5" disabled>5</button>
+  <button onclick="recargarMonto(10)" id="btn10" disabled>10</button>
+  <button onclick="recargarMonto(25)" id="btn25" disabled>25</button>
+  <button onclick="recargarMonto(125)" id="btn125" disabled>125</button>
+  <button onclick="recargarMonto(500)" id="btn500" disabled>500</button>
+</div>
+
+<script>
+  let saldo = 0;
+  let equipoSeleccionado = "";
+  let montoSeleccionado = "";
+  const local = document.getElementById("local");
+  const visitante = document.getElementById("visitante");
+
+
+  function seleccionarEquipo(equipo) {
+    equipoSeleccionado = equipo;
+    document.getElementById("empate").disabled = false;
+    document.getElementById("negativo").disabled = false;
+    document.getElementById("afirmativo").disabled = false;
+  }
+
+  function recargar() {
+    const recargaInput = document.getElementById('recargaInput');
+    const montoRecarga = parseFloat(recargaInput.value);
+
+    if (!isNaN(montoRecarga) && montoRecarga > 0) {
+      saldo += montoRecarga;
+      actualizarSaldo();
+      actualizarBotones();
+    } else {
+      alert('Ingrese un monto válido mayor a 0.');
+    }
+    document.getElementById('recargaInput').value = 0;
+    let btnEmpate = document.getElementById("empate").disabled = true;
+    let btnBueno = document.getElementById("negativo").disabled = true;
+    let btnMalo = document.getElementById("afirmativo").disabled = true;
+  }
+
+  function recargarMonto(monto) {
+    montoSeleccionado = monto;
+    document.getElementById("local").disabled = false;
+    document.getElementById("visitante").disabled = false;
+    saldo -= monto;
+    actualizarSaldo();
+    actualizarBotones();
+  }
+
+  function actualizarSaldo() {
+    const saldoInput = document.getElementById('saldoInput');
+    saldoInput.value = saldo.toFixed(2);
+  }
+
+  function actualizarBotones() {
+    const botones = document.querySelectorAll('button[id^="btn"]');
+    botones.forEach((boton) => {
+      const montoBoton = parseFloat(boton.textContent);
+      boton.disabled = saldo < montoBoton;
+    });
+  }
+
+  function realizarAccion(accion) {
+    let montoApostado = 0;
+    switch (accion) {
+      case 'EMPATE':
+        montoApostado = parseFloat(document.getElementById("btn" + montoSeleccionado).textContent) / 2;
+        break;
+      case 'VISTO_BUENO':
+        montoApostado = parseFloat(document.getElementById("btn" + montoSeleccionado).textContent) * 2;
+        break;
+      case 'VISTO_MALO':
+        // No se realiza ninguna acción
+        break;
+    }
+
+    saldo += montoApostado;
+    actualizarSaldo();
+    actualizarBotones();
+    resetearAcciones();
+  }
+
+  function resetearAcciones() {
+    equipoSeleccionado = "";
+    document.getElementById("local").disabled = true;
+    document.getElementById("visitante").disabled = true;
+    document.getElementById("empate").disabled = true;
+    document.getElementById("negativo").disabled = true;
+    document.getElementById("afirmativo").disabled = true;
+  }
+
+</script>
+
+</body>
+</html>
